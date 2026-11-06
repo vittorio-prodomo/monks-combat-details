@@ -9,7 +9,10 @@ export class CombatBars {
             if (setting('add-combat-bars') && combatStarted) {
                 for (let combatant of combat.combatants) {
                     let token = combatant.token; //canvas.tokens.placeables.find(t => { return t.id == combatant._token.id; });
-                    if (token) {
+                    // FORK PATCH (queue T259): `token.object` (the drawn token) is null when this client is not displaying
+                    // the token's scene; v13 combats are not tied to a scene. Skip it instead of throwing, so the loop
+                    // still reaches the combatants that are drawn.
+                    if (token?.object) {
                         let displayBars = token.displayBars;
                         let combatBar = token.getFlag('monks-combat-details', 'displayBarsCombat');
                         combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
@@ -41,7 +44,9 @@ export class CombatBars {
             if (setting('add-combat-bars') && combat) {
                 for (let combatant of combat.combatants) {
                     let token = combatant.token; //canvas.tokens.placeables.find(t => { return t.id == combatant._token.id; });
-                    if (token) {
+                    // FORK PATCH (queue T259): same guard as at combat start. An off-scene token has no `object`, and its
+                    // bars are drawn fresh when its scene is next viewed.
+                    if (token?.object?.bars) {
                         let displayBars = token.displayBars;
                         let combatBar = token.getFlag('monks-combat-details', 'displayBarsCombat');
                         combatBar = (combatBar == undefined || combatBar == -1 ? displayBars : combatBar);
